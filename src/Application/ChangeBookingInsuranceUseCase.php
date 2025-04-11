@@ -3,7 +3,6 @@
 namespace App\Application;
 
 use App\Entity\Booking;
-use App\Entity\PaymentMethods;
 use App\Repository\BookingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -32,10 +31,9 @@ class ChangeBookingInsuranceUseCase
             $booking->setHasInsurance($hasInsurance);
             $this->entityManager->persist($booking);
             $this->entityManager->flush();
+            return $booking;
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());
         }
-
-        return $booking;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Application\CreateVehicleUseCase;
+use App\Application\DeleteVehicleUseCase;
 use App\Application\GetVehicleByIdUseCase;
 use App\Entity\UserRoles;
 use Exception;
@@ -15,13 +16,16 @@ class VehicleController extends AbstractController
 {
     private $createVehicleUseCase;
     private $getVehicleByIdUseCase;
+    private $deleteVehicleUseCase;
 
     public function __construct(
         CreateVehicleUseCase $createVehicleUseCase,
-        GetVehicleByIdUseCase $getVehicleByIdUseCase
+        GetVehicleByIdUseCase $getVehicleByIdUseCase,
+        DeleteVehicleUseCase $deleteVehicleUseCase
     ) {
         $this->createVehicleUseCase = $createVehicleUseCase;
         $this->getVehicleByIdUseCase = $getVehicleByIdUseCase;
+        $this->deleteVehicleUseCase = $deleteVehicleUseCase;
     }
 
 
@@ -57,5 +61,18 @@ class VehicleController extends AbstractController
         }
 
         return new Response($vehicle->serializeToXml());
+    }
+
+    #[Route('/vehicle/delete/{id}', name: 'delete_vehicle', methods: ['POST'])]
+    public function deleteVehicle(int $id): Response
+    {
+
+        try {
+            $this->deleteVehicleUseCase->execute($id);
+        } catch (Exception $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response("Vehicle " + $id + " deleted successfully");
     }
 }

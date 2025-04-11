@@ -18,13 +18,15 @@ class GetBookingByIdUseCase
 
     public function execute(int $id)
     {
-        /** @var Booking $booking */
-        $booking = $this->bookingRepository->find($id);
-
-        if (is_null($booking)) {
-            throw new Exception("Booking not found");
+        try {
+            /** @var Booking $booking */
+            $booking = $this->bookingRepository->find($id);
+            if (is_null($booking)) {
+                throw new Exception("Booking not found");
+            }
+            return $booking;
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
-
-        return $booking;
     }
 }

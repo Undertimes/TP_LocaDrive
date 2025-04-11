@@ -4,16 +4,19 @@ namespace App\Application;
 
 use App\Entity\Vehicle;
 use App\Repository\VehicleRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-class GetVehicleByIdUseCase
+class DeleteVehicleUseCase
 {
 
     private VehicleRepository $vehicleRepository;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(VehicleRepository $vehicleRepository)
+    public function __construct(VehicleRepository $vehicleRepository, EntityManagerInterface $entityManager)
     {
         $this->vehicleRepository = $vehicleRepository;
+        $this->entityManager = $entityManager;
     }
 
     public function execute(int $id)
@@ -24,7 +27,8 @@ class GetVehicleByIdUseCase
             if (is_null($vehicle)) {
                 throw new Exception("Vehicle not found");
             }
-            return $vehicle;
+            $this->entityManager->remove($vehicle);
+            $this->entityManager->flush();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

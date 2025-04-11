@@ -18,13 +18,15 @@ class GetUserByIdUseCase
 
     public function execute(int $id)
     {
-        /** @var User $user */
-        $user = $this->userRepository->find($id);
-
-        if (is_null($user)) {
-            throw new Exception("User not found");
+        try {
+            /** @var User $user */
+            $user = $this->userRepository->find($id);
+            if (is_null($user)) {
+                throw new Exception("User not found");
+            }
+            return $user;
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
-
-        return $user;
     }
 }

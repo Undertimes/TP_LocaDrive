@@ -26,17 +26,11 @@ class CreateBookingUseCase
                 throw new Exception("Please login before creating a booking.");
             }
             $invoice = new Booking($startDate, $endDate, $customer, $vehicle, $hasInsurance);
+            $this->entityManager->persist($invoice);
+            $this->entityManager->flush();
+            return $invoice;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-
-        try {
-            $this->entityManager->persist($invoice);
-            $this->entityManager->flush();
-        } catch (Exception $exception) {
-            throw new Exception("Cannot create invoice. Please try again later");
-        }
-
-        return $invoice;
     }
 }

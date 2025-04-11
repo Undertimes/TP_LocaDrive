@@ -4,7 +4,6 @@ namespace App\Application;
 
 use App\Entity\Vehicle;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Exception\ORMException;
 use Exception;
 
 class CreateVehicleUseCase
@@ -23,17 +22,11 @@ class CreateVehicleUseCase
     {
         try {
             $vehicle = new Vehicle($model, $brand, $pricePerDay);
+            $this->entityManager->persist($vehicle);
+            $this->entityManager->flush();
+            return $vehicle;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-
-        try {
-            $this->entityManager->persist($vehicle);
-            $this->entityManager->flush();
-        } catch (ORMException $e) {
-            throw new Exception('Cannot create vehicle.');
-        }
-
-        return $vehicle;
     }
 }
