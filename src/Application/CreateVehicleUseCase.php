@@ -5,7 +5,6 @@ namespace App\Application;
 use App\Entity\Vehicle;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class CreateVehicleUseCase
 {

@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use ApiPlatform\GraphQl\Serializer\ObjectNormalizer;
-use ApiPlatform\Serializer\JsonEncoder;
 use App\Application\CreateVehicleUseCase;
 use App\Application\GetVehicleByIdUseCase;
 use App\Entity\UserRoles;

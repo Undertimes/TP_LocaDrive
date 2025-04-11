@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Application\CreateUserUseCase;
+use App\Application\GetUserByIdUseCase;
 use DateTime;
 use DateTimeInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +17,14 @@ class UserController extends AbstractController
 {
 
     private $createUserUseCase;
+    private $getUserByIdUseCase;
 
-    public function __construct(CreateUserUseCase $createUserUseCase)
-    {
+    public function __construct(
+        CreateUserUseCase $createUserUseCase,
+        GetUserByIdUseCase $getUserByIdUseCase
+    ) {
         $this->createUserUseCase = $createUserUseCase;
+        $this->getUserByIdUseCase = $getUserByIdUseCase;
     }
 
     #[Route("/user/create", name: "user_create", methods: ["POST"])]
@@ -32,12 +38,25 @@ class UserController extends AbstractController
 
         try {
             $this->createUserUseCase->execute($mail, $password, $firstName, $lastName, $licenseDate);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return new Response($exception->getMessage());
         }
 
         $encoder = new XmlEncoder();
 
         return new Response($encoder->encode(['mail' => (string)$mail, 'password' => (string)$password, 'firstName' => (string)$firstName, 'lastName' => (string)$lastName, 'licenseDate' => $licenseDate->format(DateTimeInterface::ATOM)], 'xml'));
+    }
+
+    #[Route('/user/{id}', name: 'get_user_by_id', methods: ['GET'])]
+    public function getUserById(int $id): Response
+    {
+
+        try {
+            $user = $this->getUserByIdUseCase->execute($id);
+        } catch (Exception $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response($user->serializeToXml());
     }
 }
