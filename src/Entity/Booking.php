@@ -5,9 +5,11 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\BookingRepository;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 enum PaymentMethods: string
 {
@@ -73,6 +75,13 @@ class Booking
         $this->hasInsurance = $hasInsurance;
         $this->status = BookingStates::cart->value;
         $this->updatePrice();
+    }
+
+    public function serializeToXml(): string
+    {
+        $encoder = new XmlEncoder();
+
+        return $encoder->encode(['startDate' => $this->startDate->format(DateTimeInterface::ATOM), 'endDate' => $this->endDate->format(DateTimeInterface::ATOM), 'customer' => $this->customer->serializeToXml(), 'vehicle' => (string)$this->vehicle->serializeToXml(), 'hasInsurance' => (string)$this->hasInsurance], 'xml');
     }
 
     public function verifyDates(DateTime $startDate, DateTime $endDate)
@@ -144,6 +153,8 @@ class Booking
     {
         $this->vehicle = $vehicle;
 
+        $this->updatePrice();
+
         return $this;
     }
 
@@ -155,6 +166,8 @@ class Booking
     public function setHasInsurance(bool $hasInsurance): static
     {
         $this->hasInsurance = $hasInsurance;
+
+        $this->updatePrice();
 
         return $this;
     }

@@ -3,25 +3,32 @@
 namespace App\Controller;
 
 use App\Application\CreateBookingUseCase;
+use App\Application\GetBookingByIdUseCase;
 use App\Application\GetVehicleByIdUseCase;
 use DateTime;
+use DateTimeInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 class BookingController extends AbstractController
 {
 
     private $createBookingUseCase;
     private $getVehicleByIdUseCase;
+    private $getBookingByIdUseCase;
 
     public function __construct(
         CreateBookingUseCase $createBookingUseCase,
-        GetVehicleByIdUseCase $getVehicleByIdUseCase
+        GetVehicleByIdUseCase $getVehicleByIdUseCase,
+        GetBookingByIdUseCase $getBookingByIdUseCase
     ) {
         $this->createBookingUseCase = $createBookingUseCase;
         $this->getVehicleByIdUseCase = $getVehicleByIdUseCase;
+        $this->getBookingByIdUseCase = $getBookingByIdUseCase;
     }
 
 
@@ -42,6 +49,22 @@ class BookingController extends AbstractController
         } catch (\Exception $e) {
             return new Response($e->getMessage());
         }
-        return new Response();
+
+        $encoder = new XmlEncoder();
+
+        return new Response($encoder->encode(['startDate' => $startDate->format(DateTimeInterface::ATOM), 'endDate' => $endDate->format(DateTimeInterface::ATOM), 'customer' => $customer->getUserIdentifier(), 'vehicleId' => (string)$vehicleId, 'hasInsurance' => (string)$hasInsurance], 'xml'));
+    }
+
+    #[Route('/booking/{id}', name: 'get_booking_by_id', methods: ['GET'])]
+    public function getBookingById(int $id): Response
+    {
+
+        try {
+            $booking = $this->getBookingByIdUseCase->execute($id);
+        } catch (Exception $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response($booking->serializeToXml());
     }
 }

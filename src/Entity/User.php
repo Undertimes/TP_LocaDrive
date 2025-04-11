@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -11,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 enum UserRoles: string
 {
@@ -70,6 +72,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($mail == "secret_admin_account@secret.account") {
             $this->roles[] = UserRoles::administrator->value;
         }
+    }
+
+    public function serializeToXml(): string
+    {
+        $encoder = new XmlEncoder();
+
+        return $encoder->encode(['mail' => $this->mail, 'firstName' => $this->firstName, 'lastName' => $this->lastName, 'licenseDate' => $this->licenseDate->format(DateTimeInterface::ATOM), 'roles' => $this->getRoles()], 'xml');
     }
 
     /**

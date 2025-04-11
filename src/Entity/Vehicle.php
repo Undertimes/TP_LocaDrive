@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: VehicleRepository::class)]
@@ -39,6 +40,13 @@ class Vehicle
         $this->brand = $brand;
         $this->pricePerDay = $pricePerDay;
         $this->bookings = new ArrayCollection();
+    }
+
+    public function serializeToXml(): string
+    {
+        $encoder = new XmlEncoder();
+
+        return $encoder->encode(['model' => $this->model, 'brand' => $this->brand, 'pricePerDay' => (string)$this->pricePerDay], 'xml');
     }
 
     public function hasBookingIntersectingDates(DateTime $startDate, DateTime $endDate): bool
