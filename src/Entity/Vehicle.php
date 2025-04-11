@@ -49,6 +49,13 @@ class Vehicle
         return $encoder->encode(['model' => $this->model, 'brand' => $this->brand, 'pricePerDay' => (string)$this->pricePerDay], 'xml');
     }
 
+    public function update(string $model, string $brand, float $pricePerDay)
+    {
+        $this->model = $model;
+        $this->brand = $brand;
+        $this->pricePerDay = $pricePerDay;
+    }
+
     public function hasBookingIntersectingDates(DateTime $startDate, DateTime $endDate): bool
     {
         $filteredCollection = $this->bookings->filter(function ($item) use ($startDate, $endDate) {
