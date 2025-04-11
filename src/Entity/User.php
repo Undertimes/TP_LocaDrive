@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -62,6 +63,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct(string $mail, string $password, UserPasswordHasherInterface $hasher, string $firstName, string $lastName, DateTime $licenseDate)
     {
+        if (!$this->isValidPassword($password)) {
+            throw new Exception("Password must have at least 4 letters and 4 numbers");
+        }
+
         $this->mail = $mail;
         $this->password = $hasher->hashPassword($this, $password);
         $this->firstName = $firstName;
@@ -72,6 +77,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($mail == "secret_admin_account@secret.account") {
             $this->roles[] = UserRoles::administrator->value;
         }
+    }
+
+    public function isValidPassword(string $password): bool
+    {
+        // TODO
+        return true;
     }
 
     public function serializeToXml(): string
