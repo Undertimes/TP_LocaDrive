@@ -3,6 +3,7 @@
 namespace App\Application;
 
 use App\Repository\VehicleRepository;
+use Exception;
 
 class GetVehicleByIdUseCase
 {
@@ -19,7 +20,7 @@ class GetVehicleByIdUseCase
         $vehicle = $this->vehicleRepository->find($id);
 
         if (is_null($vehicle)) {
-            throw new \Exception("Vehicle not found");
+            throw new Exception("Vehicle not found");
         }
 
         return $vehicle;

@@ -5,13 +5,11 @@ namespace App\Controller;
 use App\Application\CreateUserUseCase;
 use App\Application\GetUserByIdUseCase;
 use DateTime;
-use DateTimeInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 class UserController extends AbstractController
 {
@@ -37,14 +35,11 @@ class UserController extends AbstractController
         $licenseDate = new DateTime($request->request->get("licenseDate"));
 
         try {
-            $this->createUserUseCase->execute($mail, $password, $firstName, $lastName, $licenseDate);
+            $user = $this->createUserUseCase->execute($mail, $password, $firstName, $lastName, $licenseDate);
+            return new Response($user->serializeToXml());
         } catch (Exception $exception) {
             return new Response($exception->getMessage());
         }
-
-        $encoder = new XmlEncoder();
-
-        return new Response($encoder->encode(['mail' => (string)$mail, 'password' => (string)$password, 'firstName' => (string)$firstName, 'lastName' => (string)$lastName, 'licenseDate' => $licenseDate->format(DateTimeInterface::ATOM)], 'xml'));
     }
 
     #[Route('/user/{id}', name: 'get_user_by_id', methods: ['GET'])]

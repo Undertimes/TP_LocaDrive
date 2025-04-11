@@ -6,6 +6,7 @@ use App\Entity\User;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
+use Exception;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class CreateUserUseCase
@@ -27,15 +28,17 @@ class CreateUserUseCase
     {
         try {
             $user = new User($mail, $password, $this->hasher, $firstName, $lastName, $licenseDate);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
 
         try {
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         } catch (ORMException $e) {
-            throw new \Exception('Cannot create user.');
+            throw new Exception('Cannot create user.');
         }
+
+        return $user;
     }
 }

@@ -10,7 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 class VehicleController extends AbstractController
 {
@@ -40,14 +39,11 @@ class VehicleController extends AbstractController
         $pricePerDay = $request->request->get("pricePerDay");
 
         try {
-            $this->createVehicleUseCase->execute($model, $brand, $pricePerDay);
+            $vehicle = $this->createVehicleUseCase->execute($model, $brand, $pricePerDay);
+            return new Response($vehicle->serializeToXml());
         } catch (Exception $e) {
             return new Response($e->getMessage());
         }
-
-        $encoder = new XmlEncoder();
-
-        return new Response($encoder->encode(['model' => (string)$model, 'brand' => (string)$brand, 'pricePerDay' => (string)$pricePerDay], 'xml'));
     }
 
     #[Route('/vehicle/{id}', name: 'get_vehicle_by_id', methods: ['GET'])]

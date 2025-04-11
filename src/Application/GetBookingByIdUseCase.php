@@ -3,6 +3,7 @@
 namespace App\Application;
 
 use App\Repository\BookingRepository;
+use Exception;
 
 class GetBookingByIdUseCase
 {
@@ -19,7 +20,7 @@ class GetBookingByIdUseCase
         $booking = $this->bookingRepository->find($id);
 
         if (is_null($booking)) {
-            throw new \Exception("Booking not found");
+            throw new Exception("Booking not found");
         }
 
         return $booking;

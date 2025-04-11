@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Entity\Vehicle;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 class CreateBookingUseCase
 {
@@ -22,18 +23,20 @@ class CreateBookingUseCase
     {
         try {
             if (is_null($customer)) {
-                throw new \Exception("Please login before creating a booking.");
+                throw new Exception("Please login before creating a booking.");
             }
             $invoice = new Booking($startDate, $endDate, $customer, $vehicle, $hasInsurance);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
 
         try {
             $this->entityManager->persist($invoice);
             $this->entityManager->flush();
-        } catch (\Exception $exception) {
-            throw new \Exception("Cannot create invoice. Please try again later");
+        } catch (Exception $exception) {
+            throw new Exception("Cannot create invoice. Please try again later");
         }
+
+        return $invoice;
     }
 }

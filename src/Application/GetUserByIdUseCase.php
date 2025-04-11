@@ -3,6 +3,7 @@
 namespace App\Application;
 
 use App\Repository\UserRepository;
+use Exception;
 
 class GetUserByIdUseCase
 {
@@ -19,7 +20,7 @@ class GetUserByIdUseCase
         $user = $this->userRepository->find($id);
 
         if (is_null($user)) {
-            throw new \Exception("User not found");
+            throw new Exception("User not found");
         }
 
         return $user;
