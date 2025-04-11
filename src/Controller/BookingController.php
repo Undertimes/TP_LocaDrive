@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Application\ChangeBookingInsuranceUseCase;
 use App\Application\CreateBookingUseCase;
 use App\Application\GetBookingByIdUseCase;
 use App\Application\GetVehicleByIdUseCase;
@@ -20,17 +21,20 @@ class BookingController extends AbstractController
     private $getVehicleByIdUseCase;
     private $getBookingByIdUseCase;
     private $payBookingUseCase;
+    private $changeBookingInsuranceUseCase;
 
     public function __construct(
         CreateBookingUseCase $createBookingUseCase,
         GetVehicleByIdUseCase $getVehicleByIdUseCase,
         GetBookingByIdUseCase $getBookingByIdUseCase,
-        PayBookingUseCase $payBookingUseCase
+        PayBookingUseCase $payBookingUseCase,
+        ChangeBookingInsuranceUseCase $changeBookingInsuranceUseCase
     ) {
         $this->createBookingUseCase = $createBookingUseCase;
         $this->getVehicleByIdUseCase = $getVehicleByIdUseCase;
         $this->getBookingByIdUseCase = $getBookingByIdUseCase;
         $this->payBookingUseCase = $payBookingUseCase;
+        $this->changeBookingInsuranceUseCase = $changeBookingInsuranceUseCase;
     }
 
 
@@ -70,10 +74,25 @@ class BookingController extends AbstractController
     public function payBooking(Request $request): Response
     {
         $id = $request->request->get('id');
-        $paymentMethod = $request->request->get('paymentMethod') == 'true';
+        $paymentMethod = $request->request->get('paymentMethod');
 
         try {
             $booking = $this->payBookingUseCase->execute($id, $paymentMethod);
+        } catch (Exception $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response($booking->serializeToXml());
+    }
+
+    #[Route('/booking/changeInsurance', name: 'change_booking_insurance', methods: ['POST'])]
+    public function changeInsurance(Request $request): Response
+    {
+        $id = $request->request->get('id');
+        $hasInsurance = $request->request->get('hasInsurance') == 'true';
+
+        try {
+            $booking = $this->changeBookingInsuranceUseCase->execute($id, $hasInsurance);
         } catch (Exception $e) {
             return new Response($e->getMessage());
         }
