@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Application\ChangeBookingInsuranceUseCase;
+use App\Application\ChangeBookingVehicleUseCase;
 use App\Application\CreateBookingUseCase;
 use App\Application\GetBookingByIdUseCase;
 use App\Application\GetVehicleByIdUseCase;
@@ -22,19 +23,22 @@ class BookingController extends AbstractController
     private $getBookingByIdUseCase;
     private $payBookingUseCase;
     private $changeBookingInsuranceUseCase;
+    private $changeBookingVehicleUseCase;
 
     public function __construct(
         CreateBookingUseCase $createBookingUseCase,
         GetVehicleByIdUseCase $getVehicleByIdUseCase,
         GetBookingByIdUseCase $getBookingByIdUseCase,
         PayBookingUseCase $payBookingUseCase,
-        ChangeBookingInsuranceUseCase $changeBookingInsuranceUseCase
+        ChangeBookingInsuranceUseCase $changeBookingInsuranceUseCase,
+        ChangeBookingVehicleUseCase $changeBookingVehicleUseCase
     ) {
         $this->createBookingUseCase = $createBookingUseCase;
         $this->getVehicleByIdUseCase = $getVehicleByIdUseCase;
         $this->getBookingByIdUseCase = $getBookingByIdUseCase;
         $this->payBookingUseCase = $payBookingUseCase;
         $this->changeBookingInsuranceUseCase = $changeBookingInsuranceUseCase;
+        $this->changeBookingVehicleUseCase = $changeBookingVehicleUseCase;
     }
 
 
@@ -93,6 +97,21 @@ class BookingController extends AbstractController
 
         try {
             $booking = $this->changeBookingInsuranceUseCase->execute($id, $hasInsurance);
+        } catch (Exception $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response($booking->serializeToXml());
+    }
+
+    #[Route('/booking/changeVehicle', name: 'change_booking_vehicle', methods: ['POST'])]
+    public function changeVehicle(Request $request): Response
+    {
+        $bookingId = $request->request->get('bookingId');
+        $vehicleId = $request->request->get('vehicleId');
+
+        try {
+            $booking = $this->changeBookingVehicleUseCase->execute($bookingId, $vehicleId);
         } catch (Exception $e) {
             return new Response($e->getMessage());
         }

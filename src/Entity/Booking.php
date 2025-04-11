@@ -151,6 +151,10 @@ class Booking
 
     public function setVehicle(?Vehicle $vehicle): static
     {
+        if ($vehicle->hasBookingIntersectingDates($this->startDate, $this->endDate)) {
+            throw new Exception("This vehicle is already booked at those dates.");
+        }
+
         $this->vehicle = $vehicle;
 
         $this->updatePrice();
