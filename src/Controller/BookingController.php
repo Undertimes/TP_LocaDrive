@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Application\CreateBookingUseCase;
 use App\Application\GetBookingByIdUseCase;
 use App\Application\GetVehicleByIdUseCase;
+use App\Application\PayBookingUseCase;
 use DateTime;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,15 +19,18 @@ class BookingController extends AbstractController
     private $createBookingUseCase;
     private $getVehicleByIdUseCase;
     private $getBookingByIdUseCase;
+    private $payBookingUseCase;
 
     public function __construct(
         CreateBookingUseCase $createBookingUseCase,
         GetVehicleByIdUseCase $getVehicleByIdUseCase,
-        GetBookingByIdUseCase $getBookingByIdUseCase
+        GetBookingByIdUseCase $getBookingByIdUseCase,
+        PayBookingUseCase $payBookingUseCase
     ) {
         $this->createBookingUseCase = $createBookingUseCase;
         $this->getVehicleByIdUseCase = $getVehicleByIdUseCase;
         $this->getBookingByIdUseCase = $getBookingByIdUseCase;
+        $this->payBookingUseCase = $payBookingUseCase;
     }
 
 
@@ -55,6 +59,21 @@ class BookingController extends AbstractController
     {
         try {
             $booking = $this->getBookingByIdUseCase->execute($id);
+        } catch (Exception $e) {
+            return new Response($e->getMessage());
+        }
+
+        return new Response($booking->serializeToXml());
+    }
+
+    #[Route('/booking/pay', name: 'pay_booking', methods: ['POST'])]
+    public function payBooking(Request $request): Response
+    {
+        $id = $request->request->get('id');
+        $paymentMethod = $request->request->get('paymentMethod') == 'true';
+
+        try {
+            $booking = $this->payBookingUseCase->execute($id, $paymentMethod);
         } catch (Exception $e) {
             return new Response($e->getMessage());
         }

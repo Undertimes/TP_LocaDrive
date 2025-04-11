@@ -2,6 +2,7 @@
 
 namespace App\Application;
 
+use App\Entity\Booking;
 use App\Repository\BookingRepository;
 use Exception;
 
@@ -17,6 +18,7 @@ class GetBookingByIdUseCase
 
     public function execute(int $id)
     {
+        /** @var Booking $booking */
         $booking = $this->bookingRepository->find($id);
 
         if (is_null($booking)) {
